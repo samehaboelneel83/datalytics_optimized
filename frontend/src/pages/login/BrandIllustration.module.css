@@ -1,0 +1,53 @@
+/* From the reference's .dl-ill* rules in pages/login.css, minus the animations. */
+
+.ill {
+  display: block; inline-size: 100%; block-size: auto; max-block-size: 460px; overflow: visible;
+  direction: ltr; unicode-bidi: isolate;
+}
+
+.rail { fill: none; stroke: color-mix(in srgb, var(--text) 13%, transparent); stroke-width: 1.5; }
+.flow {
+  fill: none; stroke: var(--accent); stroke-width: 2.4; stroke-linecap: round;
+  stroke-dasharray: 2 11;
+}
+
+.tile {
+  fill: var(--surface); stroke: var(--border);
+  filter: drop-shadow(0 2px 6px color-mix(in srgb, var(--text) 8%, transparent));
+}
+.icon { stroke-width: 1.75; }
+.tone1 { color: var(--dl-series-1); }
+.tone5 { color: var(--dl-series-5); }
+.tone2 { color: var(--dl-series-2); }
+
+.caption { font: 500 11px var(--dl-font); fill: var(--muted); }
+.captionAi { font-weight: 600; fill: var(--mc-accent-ink); letter-spacing: .02em; }
+
+.glowStop0 { stop-color: var(--accent); stop-opacity: .34; }
+.glowStop1 { stop-color: var(--accent); stop-opacity: 0; }
+.orbit { fill: none; stroke: var(--accent); stroke-opacity: .5; stroke-width: 1.25; stroke-dasharray: 3 7; }
+.core { fill: var(--accent); filter: drop-shadow(0 0 10px color-mix(in srgb, var(--accent) 55%, transparent)); }
+.spark { color: var(--mc-accent-fg); stroke-width: 1.75; }
+
+.card {
+  fill: var(--surface); stroke: var(--border);
+  filter: drop-shadow(0 10px 24px color-mix(in srgb, var(--text) 12%, transparent));
+}
+.panel { fill: var(--surface2); }
+.dot { fill: var(--border); }
+.kpiLabel { font: 500 11px var(--dl-font); fill: var(--muted); }
+.kpi { font: 700 22px var(--dl-font); fill: var(--text); letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+.deltaBg { fill: var(--mc-success-soft); }
+.delta { font: 600 10.5px var(--dl-font); fill: var(--success); }
+
+.bar { fill: color-mix(in srgb, var(--dl-series-1) 50%, var(--surface)); }
+.barHi { fill: var(--dl-series-1); }
+
+.donutTrack { fill: none; stroke: var(--border); stroke-width: 9; }
+.donut { fill: none; stroke-width: 9; }
+.donutS1 { stroke: var(--dl-series-1); }
+.donutS2 { stroke: var(--dl-series-2); }
+.donutS3 { stroke: var(--dl-series-3); }
+
+.line { fill: none; stroke: var(--dl-series-2); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+.area { fill: color-mix(in srgb, var(--dl-series-2) 14%, transparent); }

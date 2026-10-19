@@ -1,0 +1,60 @@
+/* From the reference's .hm-hero / .hm-ask rules (pages/home/home.css). */
+
+.hero {
+  flex: 1; min-inline-size: 0;
+  position: relative; overflow: hidden;
+  padding: 24px 28px 22px;
+  border-radius: 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--dl-shadow-card);
+}
+/* The soft accent glow in the top corner. */
+.hero::before {
+  content: ""; position: absolute; top: -45%; inset-inline-start: -8%;
+  inline-size: 560px; block-size: 340px; pointer-events: none;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--accent) 13%, transparent), transparent);
+}
+.hero > * { position: relative; }
+
+.date { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; color: var(--muted); }
+
+.title {
+  font-size: 28px; font-weight: 700; letter-spacing: -.02em; line-height: 1.2;
+  margin: 6px 0 4px; color: var(--text); text-wrap: balance;
+}
+
+.sub { color: var(--muted); font-size: 15px; }
+
+.ask {
+  display: flex; align-items: center; gap: 12px;
+  margin-block-start: 20px;
+  block-size: 64px;
+  padding-inline: 12px 10px;
+  border-radius: 16px;
+  background: var(--surface2);
+  border: 1px dashed var(--mc-border-strong);
+}
+.askInput {
+  flex: 1; min-inline-size: 0; block-size: 100%;
+  border: 0; background: none; padding: 0;
+  font-size: 17px; color: var(--text);
+  text-overflow: ellipsis;
+  cursor: not-allowed;
+}
+.askInput::placeholder { color: var(--muted); }
+.askInput:disabled { opacity: 1; }
+
+.send {
+  inline-size: 42px; block-size: 42px; flex: none;
+  display: grid; place-items: center;
+  border: 0; border-radius: 12px;
+  background: var(--surface); color: var(--mc-faint);
+  cursor: not-allowed;
+}
+
+@media (max-width: 599px) {
+  .hero { padding: 20px; }
+  .title { font-size: 24px; }
+  .askInput { font-size: 15px; }
+}

@@ -1,0 +1,21 @@
+/* From the reference's .hm-sec / .hm-sechd / .hm-empty rules. */
+
+.section { display: flex; flex-direction: column; gap: 14px; min-inline-size: 0; }
+
+.heading { font-size: 18px; font-weight: 650; letter-spacing: -.01em; color: var(--text); }
+
+.empty {
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  text-align: center;
+  padding: 32px 20px;
+  border: 1.5px dashed var(--mc-border-strong);
+  border-radius: 16px;
+}
+.icon {
+  inline-size: 44px; block-size: 44px; margin-block-end: 4px;
+  display: grid; place-items: center;
+  border-radius: 12px;
+  background: var(--surface2); color: var(--muted);
+}
+.empty b { font-size: 15px; color: var(--text); }
+.empty p { font-size: 13px; color: var(--muted); max-inline-size: 380px; }

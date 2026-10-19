@@ -1,0 +1,115 @@
+/* The rail — values taken from the reference's .dl-rail rules. */
+
+.rail {
+  flex-shrink: 0;
+  inline-size: var(--dl-rail-w);           /* 248px */
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: var(--dl-3) var(--dl-2);
+  background: var(--surface);
+  border-inline-end: 1px solid var(--border);
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+/* ---- Brand row ---- */
+.brandRow {
+  display: flex; align-items: center; gap: var(--dl-2);
+  padding-inline: var(--dl-2);
+  padding-block-end: var(--dl-3);
+  margin-block-end: var(--dl-2);
+  border-block-end: 1px solid var(--border);
+}
+.brandFull { display: inline-flex; }
+.brandIcon { display: none; }
+
+.iconBtn {
+  margin-inline-start: auto;
+  display: inline-flex; align-items: center; justify-content: center;
+  inline-size: 26px; block-size: 26px; flex-shrink: 0;
+  border: none; background: none;
+  border-radius: var(--dl-radius-badge);
+  color: var(--muted);
+}
+.iconBtn:disabled { cursor: not-allowed; }
+
+/* ---- Sections ---- */
+.group { inline-size: 100%; }
+
+/* Caps here and nowhere else: a rail heading labels a GROUP. */
+.sectionTitle {
+  font-size: 11px;
+  font-weight: 650;
+  line-height: var(--dl-leading-body);
+  color: var(--mc-muted);
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  padding-inline: var(--dl-3);
+  padding-block: var(--dl-4) var(--dl-1);
+}
+.rule { display: none; }
+
+.items { list-style: none; display: flex; flex-direction: column; gap: 1px; }
+
+/* ---- Items ---- */
+.item {
+  position: relative;
+  display: flex; align-items: center; gap: var(--dl-3);
+  inline-size: 100%;
+  block-size: var(--dl-rail-item-h);       /* 34px */
+  padding-inline: var(--dl-3);
+  border-radius: var(--dl-radius-control);
+  font-size: var(--dl-text-data);
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  cursor: default;
+}
+
+.active {
+  background: var(--accent-soft);
+  color: var(--mc-accent-ink);
+  font-weight: 600;
+}
+/* "You are here" tick on the leading edge, as in the reference. */
+.active::before {
+  content: '';
+  position: absolute;
+  inset-inline-start: 0;
+  inset-block: 8px;
+  inline-size: 3px;
+  border-radius: var(--radius-pill);
+  background: var(--accent);
+}
+
+.icon { inline-size: 20px; flex-shrink: 0; display: inline-flex; justify-content: center; }
+.label { overflow: hidden; text-overflow: ellipsis; }
+
+/* ---- Tablet: icon rail (56px). Labels stay in the DOM for screen readers. ---- */
+@media (max-width: 899px) {
+  .rail { inline-size: var(--dl-rail-w-collapsed); padding-inline: var(--dl-1); }
+  .brandRow { justify-content: center; padding-inline: 0; }
+  .brandFull, .iconBtn { display: none; }
+  .brandIcon { display: inline-flex; }
+  .sectionTitle {
+    position: absolute; inline-size: 1px; block-size: 1px; overflow: hidden;
+    clip: rect(0 0 0 0); white-space: nowrap; padding: 0;
+  }
+  .rule {
+    display: block; inline-size: 24px; block-size: 1px;
+    background: var(--border); margin: var(--dl-2) auto;
+  }
+  .item { justify-content: center; padding-inline: 0; }
+  .active::before { display: none; }
+  .label {
+    position: absolute; inline-size: 1px; block-size: 1px; overflow: hidden;
+    clip: rect(0 0 0 0); white-space: nowrap;
+  }
+}
+
+/* ---- Phone: no rail (the reference turns it into a drawer; the drawer is
+   interactive, so it arrives with the navigation feature). ---- */
+@media (max-width: 599px) {
+  .rail { display: none; }
+}

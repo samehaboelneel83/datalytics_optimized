@@ -1,0 +1,125 @@
+/* From the reference's pages/login.css (.dl-auth*). Logical properties
+   throughout so RTL can mirror the page later; tokens only. */
+
+.page {
+  min-block-size: 100dvh;
+  display: grid;
+  grid-template-columns: minmax(440px, 5fr) 6fr;
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* ---- Form side ---- */
+.main {
+  display: flex; flex-direction: column; min-inline-size: 0;
+  padding: var(--dl-5) clamp(20px, 4vw, 48px);
+}
+
+.bar { display: flex; align-items: center; justify-content: space-between; gap: var(--dl-3); }
+
+.iconBtn {
+  display: inline-flex; align-items: center; justify-content: center;
+  inline-size: 34px; block-size: 34px;
+  border: 1px solid transparent; border-radius: var(--dl-radius-control);
+  background: none; color: var(--muted);
+  cursor: not-allowed;
+}
+
+.center { flex: 1; display: flex; align-items: center; justify-content: center; padding-block: var(--dl-6); }
+
+.card {
+  inline-size: 100%; max-inline-size: 400px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: var(--dl-shadow-overlay);
+  padding: clamp(24px, 5vw, 36px);
+}
+.card > [role="note"] { margin-block-end: var(--dl-4); }
+
+.title { font-size: 24px; font-weight: 650; letter-spacing: -.02em; line-height: 1.2; margin-block-end: var(--dl-1); }
+.sub { color: var(--muted); font-size: var(--dl-text-body); line-height: 1.5; margin-block-end: var(--dl-5); }
+
+.field { margin-block-end: var(--dl-4); }
+.label { display: block; margin-block-end: 6px; font-size: var(--dl-text-data); font-weight: 550; color: var(--text); }
+
+.input {
+  inline-size: 100%;
+  min-block-size: 44px;
+  padding-inline: 12px;
+  border-radius: 10px;
+  font-size: var(--dl-text-body);
+}
+/* Disabled for this milestone, but drawn like the reference's resting field. */
+.input:disabled { cursor: not-allowed; opacity: 1; }
+
+.pw { position: relative; }
+.pw .input { padding-inline-end: 46px; }
+.reveal {
+  position: absolute; inset-block: 0; inset-inline-end: 4px; margin-block: auto;
+  inline-size: 36px; block-size: 36px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: none; border-radius: 8px; background: none; color: var(--muted);
+  cursor: not-allowed;
+}
+
+.submit, .sso {
+  inline-size: 100%;
+  min-block-size: 44px;
+  gap: var(--dl-2);
+  border-radius: 10px;
+  font-size: var(--dl-text-body);
+  font-weight: 600;
+}
+.submit { margin-block-start: var(--dl-1); }
+.sso { border-color: var(--border); background: var(--surface2); }
+
+.or {
+  display: flex; align-items: center; gap: var(--dl-3);
+  margin-block: var(--dl-4);
+  color: var(--muted);
+  font-size: var(--dl-text-micro);
+  text-transform: uppercase; letter-spacing: .06em;
+}
+.or::before, .or::after { content: ''; flex: 1; block-size: 1px; background: var(--border); }
+
+.help { margin-block-start: var(--dl-5); color: var(--muted); font-size: 12.5px; line-height: 1.5; text-align: center; }
+
+/* ---- Brand panel ---- */
+.panel {
+  position: relative; overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+  border-inline-start: 1px solid var(--border);
+  background:
+    radial-gradient(70% 55% at 50% 42%, color-mix(in srgb, var(--accent) 12%, transparent), transparent 72%),
+    linear-gradient(160deg, color-mix(in srgb, var(--accent) 7%, var(--surface2)) 0%, var(--surface2) 60%);
+}
+/* Faint dot grid, faded towards the edges. */
+.panel::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background-image: radial-gradient(color-mix(in srgb, var(--text) 11%, transparent) 1px, transparent 1.3px);
+  background-size: 22px 22px;
+  mask-image: radial-gradient(75% 65% at 50% 45%, #000 30%, transparent 85%);
+}
+.panelInner {
+  position: relative;
+  inline-size: 100%; max-inline-size: 720px;
+  padding: var(--dl-7) clamp(24px, 3vw, 40px);
+  text-align: center;
+}
+.name { margin: var(--dl-4) 0 var(--dl-2); font-size: 30px; font-weight: 700; letter-spacing: -.025em; color: var(--text); }
+.tagline { margin-inline: auto; max-inline-size: 440px; color: var(--muted); font-size: var(--dl-text-section); line-height: 1.55; }
+
+.mobileBrand { display: none; }
+.illCompact { max-block-size: 150px; margin-inline: auto; }
+.illCompact text { display: none; }
+
+/* ---- Phones and narrow windows: one column ---- */
+@media (max-width: 900px) {
+  .page { grid-template-columns: 1fr; }
+  .panel { display: none; }
+  .main { padding: var(--dl-4); }
+  .mobileBrand { display: block; margin-block-start: var(--dl-4); text-align: center; }
+  .taglineCompact { color: var(--muted); font-size: var(--dl-text-data); max-inline-size: 320px; margin-inline: auto; line-height: 1.55; }
+  .center { align-items: flex-start; padding-block: var(--dl-4) var(--dl-6); }
+}

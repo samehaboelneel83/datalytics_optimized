@@ -1,0 +1,74 @@
+/* Values from the reference TopBar's inline styles, moved into classes. */
+
+.bar {
+  block-size: 52px;
+  flex-shrink: 0;
+  display: flex; align-items: center; gap: var(--dl-3);
+  padding-inline: 20px;
+  background: var(--dl-topbar-bg);
+  border-block-end: 1px solid var(--border);
+  min-inline-size: 0;
+}
+
+.title {
+  font-size: var(--dl-text-body);
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+.spacer { flex: 1; }
+
+.search {
+  display: flex; align-items: center; gap: var(--dl-2);
+  min-inline-size: 180px; flex-shrink: 0;
+  padding: 6px 10px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--dl-radius-control);
+  color: var(--muted);
+  font-family: var(--sans); font-size: 12.5px;
+}
+.searchText { flex: 1; text-align: start; }
+.kbd {
+  font-family: var(--mono); font-size: 10.5px;
+  border: 1px solid var(--border); border-radius: 4px;
+  padding: 1px 5px; background: var(--surface);
+}
+
+.iconBtn {
+  display: inline-flex; align-items: center;
+  padding: 5px 7px;
+  background: none; border: none; border-radius: var(--dl-radius-control);
+  color: var(--muted);
+}
+
+.account {
+  display: flex; align-items: center; gap: var(--dl-2);
+  padding: 4px 6px;
+  background: none; border: none; border-radius: var(--dl-radius-control);
+  color: var(--text);
+  font-family: var(--sans);
+}
+.avatar {
+  inline-size: 28px; block-size: 28px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--accent); color: var(--mc-accent-fg);
+}
+.accountName { font-size: 12.5px; font-weight: 600; }
+.chev { color: var(--muted); }
+
+.search:disabled, .iconBtn:disabled, .account:disabled { cursor: not-allowed; }
+
+.mobileOnly { display: none; align-items: center; gap: var(--dl-2); }
+
+@media (max-width: 899px) {
+  .search { min-inline-size: 0; padding: 6px 8px; }
+  .searchText, .kbd, .accountName { display: none; }
+}
+
+@media (max-width: 599px) {
+  .bar { gap: var(--dl-2); padding-inline: 10px; }
+  .mobileOnly { display: inline-flex; }
+  .title { display: none; }
+}
