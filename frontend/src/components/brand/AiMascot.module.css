@@ -1,0 +1,14 @@
+.disc {
+  flex: none; display: grid; place-items: center; border-radius: 50%;
+  background: radial-gradient(130% 130% at 28% 18%,
+    color-mix(in srgb, var(--accent) 55%, #fff), var(--accent) 48%,
+    color-mix(in srgb, var(--accent) 72%, #000));
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / .35),
+    0 4px 12px -4px color-mix(in srgb, var(--accent) 60%, transparent);
+}
+.muted { filter: grayscale(1); opacity: .6; }
+.svg { inline-size: 64%; block-size: 64%; }
+.shell { fill: #eef2f6; }
+.tip { fill: #ffffff; }
+.eye { fill: #6ee7cf; }
+.smile { stroke: #6ee7cf; }

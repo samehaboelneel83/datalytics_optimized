@@ -1,0 +1,16 @@
+.brand { display: inline-flex; align-items: center; gap: var(--dl-2); }
+
+.mark {
+  inline-size: 26px; block-size: 26px; flex-shrink: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: var(--dl-radius-badge);
+  background: var(--accent);
+  color: var(--mc-accent-fg);
+  font-weight: 700;
+  font-size: var(--dl-text-data);
+}
+
+.wordmark { font-weight: 600; font-size: var(--dl-text-body); letter-spacing: -.01em; color: var(--text); }
+
+.lg .mark { inline-size: 30px; block-size: 30px; font-size: var(--dl-text-body); }
+.lg .wordmark { font-size: var(--dl-text-section); }

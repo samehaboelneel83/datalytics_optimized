@@ -1,0 +1,14 @@
+.page {
+  max-inline-size: 1360px;
+  margin-inline: auto;
+  display: flex; flex-direction: column; gap: 28px;
+}
+.page > * { min-inline-size: 0; }
+.page > [role="note"] { align-self: flex-start; margin-block-end: -12px; }
+
+.topRow { display: flex; gap: 20px; align-items: stretch; }
+.topRow > * { min-inline-size: 0; }
+
+@media (max-width: 1100px) {
+  .topRow { flex-direction: column; }
+}
