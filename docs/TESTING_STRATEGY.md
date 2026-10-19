@@ -13,7 +13,8 @@
 | Unit | Plain data and logic | `navigation.test.ts`: the sidebar holds exactly the agreed items |
 | Component | A component renders the right content and roles | `Sidebar.test.tsx`, `HomePage.test.tsx`, `LoginPage.test.tsx` |
 | Accessibility | No detectable WCAG problems | axe run in each page test |
-| Static guarantee (milestone 1) | Nothing can trigger an action | `src/test/staticChecks.ts`: no `<form>`, all buttons `type="button"` and disabled, all inputs disabled, only in-page links |
+| Static guarantee (Home) | Nothing can trigger an action | `src/test/staticChecks.ts`: no `<form>`, all buttons `type="button"` and disabled, all inputs disabled, only in-page links |
+| Preview-mode login | Validates in the browser, hands off the email, sends nothing and stores nothing | `LoginPage.test.tsx`, `loginValidation.test.ts` (fetch / XHR / beacon / localStorage / sessionStorage / cookie are asserted untouched) |
 | Browser checks | Layout, contrast, real rendering | Manual or scripted Chromium run at 1440 / 820 / 390px (see feature note) |
 
 Later features add API tests, database tests, authorization tests and end-to-end tests.

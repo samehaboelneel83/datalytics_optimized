@@ -1,7 +1,7 @@
 # Feature 01: Static UI foundation
 
 - Branch: `feature/static-ui-foundation`
-- Status: implemented, checks pass, **awaiting owner review**. Not committed, pushed or merged.
+- Status: implemented, checks pass, **awaiting owner review**. First version pushed to `origin/emad` by the owner; later additions (preview-mode login, Docker) are not committed. Not merged.
 - Date: 2026-10-19
 
 ## Objective
@@ -13,8 +13,12 @@ app's current look and does nothing yet.
 **In:** design tokens and font, login page, app shell, sidebar with the high-priority
 items, home page (first-run state), responsive layout, accessibility basics, tests, docs.
 
-**Out (explicitly):** authentication, form submission, validation, API calls, database,
-routing, working navigation, theme/language switching, dashboards, charts, AI.
+**Out (explicitly):** authentication, API calls, database, routing, working navigation,
+theme/language switching, dashboards, charts, AI.
+
+**Added after the first push:** the login form works in the browser in *preview mode*
+(validation + hand-off to Home, no account check: [ADR 0005](../decisions/0005-login-preview-mode.md)),
+and the app runs with `docker compose up --build` ([ADR 0004](../decisions/0004-docker-nginx-static-serving.md)).
 
 ## Sidebar (high priority only)
 Home · Ask AI · **Data:** Datasets · **Data sources:** Upload, Connections ·
@@ -35,16 +39,25 @@ The other reference items are deferred (list in [REFERENCE_ANALYSIS.md](../REFER
 | `src/components/brand/BrandMark.tsx`, `AiMascot.tsx` | Logo tile + wordmark; Ask AI mascot |
 | `src/components/ui/PreviewNote.tsx` | "UI preview, not connected yet" label |
 | `src/pages/home/*` | `HomePage` arranges `Hero`, `StatTiles`, `GetStarted`, `ContinueSection` |
-| `src/pages/login/*` | `LoginPage` and the static `BrandIllustration` |
+| `src/pages/login/*` | `LoginPage` (layout), `LoginForm` (state + validation UI), `loginValidation.ts` (pure rules), static `BrandIllustration` |
+| `frontend/Dockerfile`, `nginx.conf`, `docker-compose.yml` | Build and serve the site in a container |
 | `src/test/*` | Test setup, axe helper, shared "no interactive behaviour" assertion |
 
 Every component has a matching `*.module.css` ([ADR 0002](../decisions/0002-css-modules-on-design-tokens.md)).
 
 ## How "static" is enforced
-- No `<form>` anywhere, so nothing can submit or reload the page.
+**Home:**
+- No `<form>`, so nothing can submit or reload the page.
 - Every button is `type="button"` and `disabled`, with the tooltip "Not available yet".
   Disabled buttons keep their full colour so the design reads correctly.
 - Every input is `disabled`.
+
+**Login (preview mode):** the only live part is `LoginForm`. It validates locally and calls
+`onContinue(email)`; `entries/login.tsx` opens Home. Tests assert nothing is sent over
+the network and nothing is stored. Single sign-on and the theme switch stay disabled.
+`LoginForm` has `noValidate` and `preventDefault`, so the browser never submits it natively.
+
+**Both pages:**
 - Sidebar items are plain text, not links or buttons. Only the current one is marked
   (`aria-current="page"`).
 - Each page shows a "UI preview" note.
@@ -59,7 +72,7 @@ Every component has a matching `*.module.css` ([ADR 0002](../decisions/0002-css-
 | Sidebar | 30+ items, folding sections, permission gating | 8 items, no folding, no gating | High priority only; behaviour comes with navigation/auth |
 | Phone sidebar | Drawer opened by a menu button | Hidden; menu icon shown disabled | The drawer is interactive, so it belongs to the navigation feature |
 | Top bar | Breadcrumbs, search palette, LLM picker, language, theme, bell, account menu | Title + disabled search, theme, bell, account | LLM picker and language come with their features |
-| Login | Validation, SSO discovery, caps-lock hint, language/theme switch, animated illustration | Same layout, all disabled, static illustration | UI only; animations are unnecessary motion |
+| Login | Validation, SSO discovery, caps-lock hint, language/theme switch, animated illustration, real sign-in | Same layout, same validation messages, show/hide password, Caps Lock hint; **no account check** (opens Home); SSO/theme disabled; static illustration | Backend does not exist yet; animations are unnecessary motion |
 | Home | Live data, 8 API calls, greeting by time of day, user's name | First-run layout, fixed "Welcome to Datalytics", no data | No backend; no fake data |
 | Fonts | Inter + IBM Plex Arabic + Syne/Manrope/JetBrains Mono | Inter only | Others return with RTL/feature needs |
 
@@ -71,7 +84,7 @@ Every component has a matching `*.module.css` ([ADR 0002](../decisions/0002-css-
 | Install | `npm ci` | passed (`npm audit` in the cloud workspace: 0 vulnerabilities) |
 | Lint | `npm run lint` | passed, 0 problems |
 | Types | `npm run typecheck` | passed |
-| Tests | `npm test` | **18 passed, 0 failed** (4 files) |
+| Tests | `npm test` | **18 passed, 0 failed** (4 files) at the first version. After adding preview-mode login: **36 passed** (5 files), executed in the cloud workspace; re-run on the owner's machine: see the PR |
 | Build | `npm run build` | passed |
 
 Test files: `navigation.test.ts` (4), `Sidebar.test.tsx` (3), `HomePage.test.tsx` (6),
@@ -89,6 +102,15 @@ The static-guarantee test was checked by mutation: re-enabling one login button 
   elements are the skip link and the scrolling main area.
 - Screenshots: `screenshots/` (new pages, plus the reference for comparison).
 
+### Docker
+- Executed: `docker compose config` (valid); clean-copy `npm ci && npm run build` following
+  the Dockerfile steps; the built site served with the same CSP as `nginx.conf` in headless
+  Chromium: no console errors, no blocked resources, Inter loads, unknown path gives 404,
+  login submit opens Home.
+- **Not executed:** `docker build`, `docker compose up`, the real nginx config test, the
+  health check, and running with `read_only` + unprivileged nginx. The cloud workspace has no
+  Docker daemon. **You must run `docker compose up --build` once and open `http://localhost:8080/`.**
+
 ### Needs manual verification by the reviewer
 - Visual comparison with the running reference app on your own screen, side by side.
 - Real devices (phone, tablet) and browsers other than Chromium (Firefox, Safari).
@@ -104,11 +126,12 @@ The static-guarantee test was checked by mutation: re-enabling one login button 
   packages with npm 10 hit an npm internal error (see DEVELOPMENT_WORKFLOW.md).
 
 ## What to inspect before approving
-1. Run it: `cd frontend && npm ci && npm run dev`, then open `/` and `/login.html`.
+1. Run it: `cd frontend && npm ci && npm run dev`, then open `/` and `/login.html`; or `docker compose up --build` and open `http://localhost:8080/`.
 2. Compare with the reference screenshots in `screenshots/`.
 3. Read `navigation.ts`: is the sidebar list right?
 4. Skim `Sidebar.tsx` + `Sidebar.module.css` as the pattern every component follows.
-5. Read `src/test/staticChecks.ts`: that is the "nothing works yet" guarantee.
+5. Read `src/test/staticChecks.ts` (Home guarantee) and the "sends nothing" test in `LoginPage.test.tsx` (login guarantee).
+6. Decide on preview-mode login ([ADR 0005](../decisions/0005-login-preview-mode.md)): keep it, or revert to the fully disabled form.
 
 ## Next
 Feature 02, **Navigation**: `react-router`, real sidebar links, mobile drawer,

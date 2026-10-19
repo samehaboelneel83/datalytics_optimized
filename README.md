@@ -6,7 +6,8 @@ application. The original app
 is the reference for features and visual design. This repository is the new implementation.
 
 **Current state:** milestone 1, a static UI foundation (login page, home page, sidebar).
-Nothing is connected: there is no backend, no authentication and no data.
+The login page checks what you type in the browser and then opens the home page, but no
+account is verified: there is no backend, no authentication and no data.
 See [`docs/FEATURE_STATUS.md`](docs/FEATURE_STATUS.md).
 
 ## Repository layout
@@ -33,8 +34,24 @@ npm run dev       # http://localhost:3000
 | Home (sidebar + top bar + home) | http://localhost:3000/ |
 | Login | http://localhost:3000/login.html |
 
-There is no router yet, so the two pages are separate HTML entries. Clicking a sidebar
-item does nothing on purpose.
+There is no router yet, so the two pages are separate HTML entries. Sidebar items do
+nothing on purpose. On the login page, any filled-in email and password opens Home
+(preview mode, nothing is checked or stored).
+
+## Run with Docker
+
+Requires Docker with the Compose plugin.
+
+```bash
+docker compose up --build        # build the image and start it
+# Home:  http://localhost:8080/        Login: http://localhost:8080/login.html
+docker compose down              # stop
+```
+
+Port 8080 busy? `FRONTEND_PORT=9000 docker compose up --build` (or copy `.env.example`
+to `.env`). The image is built in two stages: Node builds the site, then nginx
+(unprivileged, read-only container) serves the static files. See
+[ADR 0004](docs/decisions/0004-docker-nginx-static-serving.md).
 
 ## Checks
 
