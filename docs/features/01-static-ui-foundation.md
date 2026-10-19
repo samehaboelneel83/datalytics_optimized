@@ -3,6 +3,7 @@
 - Branch: `feature/static-ui-foundation`
 - Status: implemented, checks pass, **awaiting owner review**. First version pushed to `origin/emad` by the owner; later additions (preview-mode login, Docker) are not committed. Not merged.
 - Date: 2026-10-19
+- **Later changed by [feature 02](02-authentication-and-users.md):** one page entry instead of two, and the login checks the database. This note describes feature 01 as built.
 
 ## Objective
 Give the new app its visual foundation: the Datalytics design tokens, a login page,
@@ -109,7 +110,7 @@ The static-guarantee test was checked by mutation: re-enabling one login button 
   login submit opens Home.
 - **Not executed:** `docker build`, `docker compose up`, the real nginx config test, the
   health check, and running with `read_only` + unprivileged nginx. The cloud workspace has no
-  Docker daemon. **You must run `docker compose up --build` once and open `http://localhost:8080/`.**
+  Docker daemon. **You must run `docker compose up --build` once and open `http://localhost:8480/`.**
 
 ### Needs manual verification by the reviewer
 - Visual comparison with the running reference app on your own screen, side by side.
@@ -126,7 +127,7 @@ The static-guarantee test was checked by mutation: re-enabling one login button 
   packages with npm 10 hit an npm internal error (see DEVELOPMENT_WORKFLOW.md).
 
 ## What to inspect before approving
-1. Run it: `cd frontend && npm ci && npm run dev`, then open `/` and `/login.html`; or `docker compose up --build` and open `http://localhost:8080/`.
+1. Run it: `cd frontend && npm ci && npm run dev`, then open `/` and `/login.html`; or `docker compose up --build` and open `http://localhost:8480/`.
 2. Compare with the reference screenshots in `screenshots/`.
 3. Read `navigation.ts`: is the sidebar list right?
 4. Skim `Sidebar.tsx` + `Sidebar.module.css` as the pattern every component follows.

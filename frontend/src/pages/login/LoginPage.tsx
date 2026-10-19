@@ -1,7 +1,7 @@
 import { Moon } from 'lucide-react'
 import BrandMark from '../../components/brand/BrandMark'
 import BrandIllustration from './BrandIllustration'
-import LoginForm from './LoginForm'
+import LoginForm, { type SignIn } from './LoginForm'
 import styles from './LoginPage.module.css'
 
 /**
@@ -10,12 +10,9 @@ import styles from './LoginPage.module.css'
  * Same layout as the reference: the form card on the reading-start side and
  * the brand panel on the other; one column below 900px.
  *
- * Preview mode (no backend): the form validates input in the browser and then
- * calls `onContinue`. Nothing is sent or stored, and no account is checked.
- * The page itself only lays things out; the authentication feature replaces
- * what `onContinue` does.
+ * The page only lays things out; `onSignIn` (from App) talks to the server.
  */
-export default function LoginPage({ onContinue }: { onContinue: (email: string) => void }) {
+export default function LoginPage({ onSignIn }: { onSignIn: SignIn }) {
   return (
     <div className={styles.page}>
       <main className={styles.main}>
@@ -34,7 +31,7 @@ export default function LoginPage({ onContinue }: { onContinue: (email: string) 
 
         <div className={styles.center}>
           <section className={styles.card} aria-label="Sign in">
-            <LoginForm onContinue={onContinue} />
+            <LoginForm onSignIn={onSignIn} />
           </section>
         </div>
       </main>

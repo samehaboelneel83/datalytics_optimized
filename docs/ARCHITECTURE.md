@@ -3,11 +3,13 @@
 ## Overview (target)
 
 ```
-frontend/  React SPA  ──HTTP/JSON──>  backend/  API  ──>  database + data sources
+browser ──> frontend (nginx :3002) ──/api──> backend (FastAPI :8000) ──> PostgreSQL
+              serves the React app            auth, users, (later) data
 ```
 
-Only the **frontend** exists today, and it is static. The backend will be designed
-when its first feature starts. The rules below already apply to it.
+The browser only ever talks to one origin. nginx (Docker) or Vite (development) forwards
+`/api` to the backend. Only the web app's port is published; the API and database are
+reachable only inside Docker.
 
 ## Frontend
 
@@ -18,15 +20,16 @@ Why this stack: [ADR 0001](decisions/0001-frontend-stack.md).
 
 ### Folder structure
 ```
-docker-compose.yml           runs the frontend container (backend/db added later)
-.env.example                 optional settings (FRONTEND_PORT)
+docker-compose.yml           postgres + backend + frontend
+.env.example                 settings to copy into .env (secrets are required)
 frontend/
-  Dockerfile  nginx.conf     two-stage build, nginx serving (ADR 0004)
-  index.html                 page entry: Home
-  login.html                 page entry: Login
+  Dockerfile  nginx.conf     two-stage build, nginx serving + /api proxy (ADR 0004)
+  index.html                 the one page
   src/
-    entries/                 one tiny file per page that mounts React (no logic)
-      home.tsx  login.tsx
+    entries/app.tsx          mounts React (no logic)
+    App.tsx                  asks the server who is signed in → LoginPage or the shell
+    api/client.ts            the only place that calls fetch (same origin, CSRF header)
+    auth/authApi.ts          signIn, signOut, currentUser
     styles/                  GLOBAL layer only: tokens, font, reset, shared primitives
       mcait/                 MCAIT design-system tokens (reused from the reference)
       datalytics-theme.css   Datalytics product theme: teal accent, dark mode, sizes
@@ -39,6 +42,7 @@ frontend/
     pages/                   one folder per page; page-only parts live inside it
       home/                  HomePage, Hero, StatTiles, GetStarted, ContinueSection
       login/                 LoginPage, LoginForm, loginValidation, BrandIllustration
+      users/                 UsersPage, UserRow, CreateUserForm, usersApi (admins only)
     test/                    test setup and shared test helpers
     assets/fonts/            Inter woff2 + licence
 ```
@@ -65,16 +69,17 @@ frontend/
 | Need | Library | Feature |
 |---|---|---|
 | Routing | react-router | Navigation |
-| Server data, caching, loading/error state | TanStack Query | First API feature |
-| HTTP | `fetch` wrapper in `src/services/` (axios only if needed) | First API feature |
+| Server data, caching, loading/error state | TanStack Query | When several pages share server data |
+| HTTP | `fetch` wrapper in `src/api/client.ts` (done; no axios) | — |
 | Charts | Recharts (as in the reference), to be evaluated | Dashboards |
 
 Not planned: Tailwind or a UI kit (MUI, shadcn…). They would replace the MCAIT tokens and
 change the Datalytics look ([ADR 0002](decisions/0002-css-modules-on-design-tokens.md)).
 
 ### Running it
-`npm run dev` for development (hot reload); `docker compose up --build` for the built
-app behind nginx ([ADR 0004](decisions/0004-docker-nginx-static-serving.md)).
+`npm run dev` for development (http://localhost:3002, hot reload, `/api` forwarded to
+http://localhost:8000); `docker compose up --build` for everything behind nginx
+([ADR 0004](decisions/0004-docker-nginx-static-serving.md)).
 
 ### Responsive behaviour
 | Width | Sidebar | Top bar |
@@ -83,21 +88,47 @@ app behind nginx ([ADR 0004](decisions/0004-docker-nginx-static-serving.md)).
 | 600–899px | icon rail, 56px (labels kept for screen readers) | compact search, no labels |
 | < 600px | hidden | brand mark + menu icon (drawer comes with navigation) |
 
-## Backend (planned, not built)
-The reference backend is FastAPI + SQLAlchemy (async) + PostgreSQL + Alembic. Its
-`app/main.py` alone is ~1,090 lines, which is the kind of concentration we avoid.
-The rebuild's backend design will get its own ADR. The intended rules:
+## Backend
 
-1. **Layers:** `routers/` (HTTP only: parse, validate, call a service, shape the response)
-   → `services/` (business rules, no HTTP) → `repositories/` (database access only).
-2. **One module per feature** (`auth/`, `datasets/`, `connections/`…), each holding its
-   own router, service, schemas and tests, instead of one giant file per layer.
+### Stack
+Python 3.12 · FastAPI · SQLAlchemy 2 (async, asyncpg) · PostgreSQL 16 · Alembic ·
+pydantic-settings · bcrypt · PyJWT · pytest + httpx · ruff.
+Why: [ADR 0006](decisions/0006-backend-stack-and-authentication.md).
+
+### Folder structure
+```
+backend/
+  Dockerfile                 runs migrations, then uvicorn (non-root, read-only)
+  requirements.txt           runtime, exact versions; requirements-dev.txt adds test tools
+  alembic/versions/          reviewed migrations (0001_users)
+  app/
+    main.py                  builds the app: settings check, first admin, CSRF guard, routers
+    config.py                every setting from environment variables
+    database.py              engine, session per request (get_db), Base
+    security.py              bcrypt, session JWT, cookie helpers (no database)
+    ownership.py             THE data rule: owner sees own, admin sees all (ADR 0007)
+    auth/
+      router.py              /api/auth: login, logout, me
+      dependencies.py        current_user (401) and require_admin (403)
+    users/
+      models.py              users table
+      schemas.py             request/response shapes (never includes the hash)
+      repository.py          queries only
+      service.py             rules: authenticate, create, update, first admin
+      router.py              /api/users (admin only)
+  tests/                     one file per area; SQLite by default, PostgreSQL via TEST_DATABASE_URL
+```
+
+### Rules
+1. **Layers:** router (HTTP only) → service (rules, no HTTP) → repository (SQL only).
+2. **One package per feature** (`auth/`, `users/`, later `connections/`, `dashboards/`).
 3. **Thin `main.py`:** create the app, register routers, nothing else.
-4. **Configuration from environment variables** via a typed settings object. No secrets
-   in code or in the repository.
-5. **Schemas at the boundary:** request/response models validate all input.
-6. **Explicit errors:** no broad `except` that hides failures.
-7. **Tests per layer:** unit tests for services, API tests for routers, database tests
-   for repositories, plus authorization tests for every protected route.
-8. **Migrations are reviewed** before they run; no destructive schema change without
-   approval.
+4. **Configuration from environment variables.** No secrets in code; weak secrets stop startup.
+5. **Schemas at the boundary:** request/response models validate all input; responses
+   never include password hashes.
+6. **Explicit errors:** services raise `UserError` (or a feature's own error) and routers
+   turn it into a 4xx. No broad `except`.
+7. **Ownership everywhere:** every owned table uses `Owned` + `visible_to` / `can_access`.
+8. **Tests per layer**, plus authorization tests for every protected route (signed out →
+   401, normal user → 403/404).
+9. **Migrations are reviewed** before they run; no destructive schema change without approval.

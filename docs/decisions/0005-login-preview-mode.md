@@ -1,6 +1,6 @@
 # ADR 0005: Login runs in "preview mode" (no backend verification)
 
-- Status: Proposed (awaiting owner approval)
+- Status: **Superseded** by [ADR 0006](0006-backend-stack-and-authentication.md) (real login against the database)
 - Date: 2026-10-19
 
 ## Context

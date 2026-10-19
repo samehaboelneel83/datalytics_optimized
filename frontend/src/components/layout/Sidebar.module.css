@@ -113,3 +113,12 @@
 @media (max-width: 599px) {
   .rail { display: none; }
 }
+
+/* Items that open a page: a reset button that looks like the other items. */
+.link {
+  border: none; background: none; font: inherit; text-align: start;
+  cursor: pointer;
+}
+.link:not(.active):hover { background: var(--surface2); color: var(--text); }
+.link:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.link.active { background: var(--accent-soft); }

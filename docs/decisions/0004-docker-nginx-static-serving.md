@@ -12,7 +12,8 @@ starting point for later deployment. Today the app is only static files.
   `npm run build`; (2) `nginxinc/nginx-unprivileged:1.27-alpine` serves only `dist/`.
   The final image has no Node, no source and no `node_modules`.
 - `docker-compose.yml` at the repo root, one service now (`frontend`), published on
-  `${FRONTEND_PORT:-8080}`. Backend and database services are added by their features.
+  `${FRONTEND_PORT:-3002}`. Since ADR 0006 the same file also runs `postgres` and `backend`,
+  and nginx forwards `/api/` to the backend.
 - Container hardening: non-root user, `read_only` filesystem with a `/tmp` tmpfs,
   all Linux capabilities dropped, `no-new-privileges`.
 - `frontend/nginx.conf`: gzip, long cache for hashed `/assets/`, `no-cache` for HTML,
