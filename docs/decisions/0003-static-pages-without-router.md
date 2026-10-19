@@ -1,6 +1,8 @@
 # ADR 0003: Milestone 1 pages are separate HTML entries, without a router
 
-- Status: Proposed (awaiting owner approval with the milestone-1 PR)
+- Status: **Partly superseded** (2026-10-19): the two HTML entries were merged into one app
+  (`index.html` → `App.tsx`) that shows the login page or the signed-in shell. There is still
+  no router; the navigation feature adds one.
 - Date: 2026-10-19
 
 ## Context

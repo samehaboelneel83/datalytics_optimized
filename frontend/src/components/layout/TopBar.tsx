@@ -1,4 +1,4 @@
-import { Bell, ChevronDown, Menu, Moon, Search, UserRound } from 'lucide-react'
+import { Bell, LogOut, Menu, Moon, Search, UserRound } from 'lucide-react'
 import BrandMark from '../brand/BrandMark'
 import styles from './TopBar.module.css'
 
@@ -6,11 +6,16 @@ import styles from './TopBar.module.css'
  * The top bar (reference: components/TopBar.tsx), rebuilt with CSS classes
  * instead of the reference's inline styles.
  *
- * Every control is a disabled placeholder in milestone 1: search, theme,
- * notifications and the account menu each arrive with their own feature.
- * The reference's LLM picker and language switcher are not shown yet.
+ * Shows who is signed in and a working Sign out. Search, theme and
+ * notifications are still disabled placeholders; each arrives with its own
+ * feature. The reference's LLM picker and language switcher are not shown yet.
  */
-export default function TopBar({ pageTitle }: { pageTitle: string }) {
+export default function TopBar({ pageTitle, email, isAdmin = false, onSignOut }: {
+  pageTitle: string
+  email?: string
+  isAdmin?: boolean
+  onSignOut?: () => void
+}) {
   return (
     <header className={styles.bar}>
       {/* Phone only: the rail is hidden there, so the bar carries the brand. */}
@@ -43,12 +48,18 @@ export default function TopBar({ pageTitle }: { pageTitle: string }) {
         <Bell size={17} aria-hidden="true" />
       </button>
 
-      <button type="button" className={styles.account} disabled
-        aria-label="Account menu (not available yet)" title="Not available yet">
+      <span className={styles.account} title={email}>
         <span className={styles.avatar} aria-hidden="true"><UserRound size={15} /></span>
-        <span className={styles.accountName}>Account</span>
-        <ChevronDown size={12} className={styles.chev} aria-hidden="true" />
-      </button>
+        <span className={styles.accountName}>{email ?? 'Account'}</span>
+        {isAdmin && <span className={styles.badge}>Admin</span>}
+      </span>
+
+      {onSignOut && (
+        <button type="button" className={styles.iconBtn} onClick={onSignOut}
+          aria-label="Sign out" title="Sign out">
+          <LogOut size={17} aria-hidden="true" />
+        </button>
+      )}
     </header>
   )
 }

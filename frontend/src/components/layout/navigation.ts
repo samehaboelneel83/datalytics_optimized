@@ -1,14 +1,14 @@
 import {
-  Bot, Database, Home, LayoutDashboard, Plug, Settings, Sparkles, Upload, type LucideIcon,
+  Bot, Database, Home, LayoutDashboard, Plug, Settings, Sparkles, Upload, Users, type LucideIcon,
 } from 'lucide-react'
 
 /**
  * The sidebar, as data (same idea as the reference's components/navigation.ts).
  *
- * Milestone 1 keeps only the high-priority destinations, in the reference's
- * own section order and wording. Entries are VISUAL ONLY: there is no `to`
- * route yet, because nothing may navigate in this milestone. The routing
- * feature will add a `to` path (and a permission gate) to each item.
+ * Only the high-priority destinations, in the reference's own section order
+ * and wording. Items listed in IMPLEMENTED can be opened; the rest are shown
+ * as plain text until their feature exists. `adminOnly` items are hidden from
+ * normal users (the backend refuses them anyway).
  *
  * Deliberately deferred (present in the reference): Lineage, Glossary,
  * Dataflows, My dashboards, Templates, Automations, Migration, the whole
@@ -17,12 +17,13 @@ import {
 
 export type NavItemId =
   | 'home' | 'ask-ai' | 'datasets' | 'upload' | 'connections'
-  | 'dashboards' | 'insights' | 'settings'
+  | 'dashboards' | 'insights' | 'users' | 'settings'
 
 export interface NavItem {
   id: NavItemId
   label: string
   icon: LucideIcon
+  adminOnly?: boolean
 }
 
 export interface NavSection {
@@ -59,6 +60,20 @@ export const NAVIGATION: readonly NavSection[] = [
   },
   {
     title: 'Admin',
-    items: [{ id: 'settings', label: 'Settings', icon: Settings }],
+    items: [
+      { id: 'users', label: 'Users', icon: Users, adminOnly: true },
+      { id: 'settings', label: 'Settings', icon: Settings },
+    ],
   },
 ]
+
+/** Destinations that have a page. Everything else is still a placeholder. */
+export const IMPLEMENTED: ReadonlySet<NavItemId> = new Set<NavItemId>(['home', 'users'])
+
+/** The sections as this user sees them: admin-only items removed for normal users. */
+export function navigationFor(isAdmin: boolean): NavSection[] {
+  return NAVIGATION.map(section => ({
+    ...section,
+    items: section.items.filter(item => isAdmin || !item.adminOnly),
+  }))
+}

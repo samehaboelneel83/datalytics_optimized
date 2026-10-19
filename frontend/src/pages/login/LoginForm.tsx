@@ -1,22 +1,20 @@
 import { useId, useRef, useState, type FormEvent, type KeyboardEvent } from 'react'
 import { ArrowRight, Eye, EyeOff } from 'lucide-react'
-import PreviewNote from '../../components/ui/PreviewNote'
 import { checkEmail, checkPassword } from './loginValidation'
 import styles from './LoginForm.module.css'
 
 /**
  * The sign-in form (reference: pages/Login.tsx).
  *
- * Works in the browser only: it validates what was typed, shows the same
- * messages as the reference, and on valid input calls `onContinue(email)`.
- * It sends nothing anywhere and stores nothing: the password lives in
- * component state until the page is left.
- *
- * PREVIEW MODE: no account is checked. The real feature replaces what
- * `onContinue` does (call the login API, handle 401/429/5xx); this form does
- * not change. Single sign-on needs a server, so that button stays disabled.
+ * Checks the input in the browser first (same messages as the reference),
+ * then calls `onSignIn(email, password)`, which asks the server. That returns
+ * null on success or the message to show (e.g. "Invalid email or password.").
+ * The form never stores the password; it lives in component state only.
+ * Single sign-on is not built, so that button stays disabled.
  */
-export default function LoginForm({ onContinue }: { onContinue: (email: string) => void }) {
+export type SignIn = (email: string, password: string) => Promise<string | null>
+
+export default function LoginForm({ onSignIn }: { onSignIn: SignIn }) {
   const uid = useId()
   const emailId = `${uid}-email`, passwordId = `${uid}-password`
 
@@ -26,6 +24,8 @@ export default function LoginForm({ onContinue }: { onContinue: (email: string) 
   const [capsLock, setCapsLock] = useState(false)
   const [touched, setTouched] = useState({ email: false, password: false })
   const [submitted, setSubmitted] = useState(false)
+  const [busy, setBusy] = useState(false)
+  const [serverError, setServerError] = useState<string | null>(null)
   const emailRef = useRef<HTMLInputElement>(null)
   const passwordRef = useRef<HTMLInputElement>(null)
 
@@ -34,12 +34,22 @@ export default function LoginForm({ onContinue }: { onContinue: (email: string) 
   const emailError = touched.email || submitted ? checkEmail(email) : undefined
   const passwordError = touched.password || submitted ? checkPassword(password) : undefined
 
-  const onSubmit = (e: FormEvent) => {
+  const onSubmit = async (e: FormEvent) => {
     e.preventDefault()
+    if (busy) return
     setSubmitted(true)
+    setServerError(null)
     if (checkEmail(email)) { emailRef.current?.focus(); return }
     if (checkPassword(password)) { passwordRef.current?.focus(); return }
-    onContinue(email.trim())
+    setBusy(true)
+    const problem = await onSignIn(email.trim(), password)
+    // On success the app replaces this page, so only a failure comes back here.
+    if (problem) {
+      setBusy(false)
+      setServerError(problem)
+      setPassword('')
+      passwordRef.current?.focus()
+    }
   }
 
   const onPasswordKey = (e: KeyboardEvent<HTMLInputElement>) => {
@@ -51,7 +61,6 @@ export default function LoginForm({ onContinue }: { onContinue: (email: string) 
 
   return (
     <form className={styles.form} onSubmit={onSubmit} noValidate aria-labelledby="login-title">
-      <PreviewNote>Preview mode — no account is checked yet</PreviewNote>
       <h1 id="login-title" className={styles.title}>Welcome back</h1>
       <p className={styles.sub}>Explore your data, build dashboards and ask questions in plain language.</p>
 
@@ -88,14 +97,17 @@ export default function LoginForm({ onContinue }: { onContinue: (email: string) 
         {capsLock && <p id={`${passwordId}-caps`} className={styles.hint}>Caps Lock is on.</p>}
       </div>
 
-      <button type="submit" className={`btn btn-primary ${styles.submit}`}>
-        Sign In <ArrowRight size={16} aria-hidden="true" />
+      {serverError && <p role="alert" className={styles.alert}>{serverError}</p>}
+
+      <button type="submit" className={`btn btn-primary ${styles.submit}`} disabled={busy}
+        aria-busy={busy || undefined}>
+        {busy ? 'Signing in…' : <>Sign In <ArrowRight size={16} aria-hidden="true" /></>}
       </button>
 
       <div className={styles.or} role="separator"><span>OR</span></div>
 
       <button type="button" className={`btn ${styles.sso}`} disabled
-        title="Single sign-on needs the backend (not available yet)">
+        title="Single sign-on is not available yet">
         Sign in with SSO
       </button>
 

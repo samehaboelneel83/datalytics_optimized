@@ -1,24 +1,26 @@
 import { ChevronsLeft } from 'lucide-react'
 import BrandMark from '../brand/BrandMark'
-import { NAVIGATION, type NavItemId } from './navigation'
+import { IMPLEMENTED, navigationFor, type NavItemId } from './navigation'
 import styles from './Sidebar.module.css'
 
 /**
  * The left rail (reference: components/Layout.tsx, `.dl-rail*` in index.css).
  *
- * Static in milestone 1:
- *  - items are plain list entries, not links or buttons, so they are not
- *    focusable and cannot be activated;
- *  - the current page is marked with aria-current, which screen readers
- *    announce, and drawn with the reference's tint + leading accent bar;
- *  - the collapse control is shown, disabled.
+ *  - Items with a page (IMPLEMENTED) are buttons that call `onNavigate`.
+ *  - Items without a page yet are plain text: not focusable, not clickable.
+ *  - Admin-only items appear only for administrators.
+ *  - The current page is marked with aria-current and the reference's tint + accent bar.
  *
  * Responsive behaviour is CSS only (see the module): full labels from 900px,
  * an icon rail from 600px, hidden below that.
  */
 const sectionId = (title: string) => `rail-section-${title.toLowerCase().replace(/\W+/g, '-')}`
 
-export default function Sidebar({ activeItem }: { activeItem: NavItemId }) {
+export default function Sidebar({ activeItem, isAdmin = false, onNavigate }: {
+  activeItem: NavItemId
+  isAdmin?: boolean
+  onNavigate?: (id: NavItemId) => void
+}) {
   return (
     <nav className={styles.rail} aria-label="Main">
       <div className={styles.brandRow}>
@@ -30,7 +32,7 @@ export default function Sidebar({ activeItem }: { activeItem: NavItemId }) {
         </button>
       </div>
 
-      {NAVIGATION.map(section => (
+      {navigationFor(isAdmin).map(section => (
         <div key={section.title ?? 'root'} className={styles.group}>
           {section.title && (
             <>
@@ -42,13 +44,29 @@ export default function Sidebar({ activeItem }: { activeItem: NavItemId }) {
             aria-labelledby={section.title ? sectionId(section.title) : undefined}>
             {section.items.map(({ id, label, icon: Icon }) => {
               const active = id === activeItem
+              const className = `${styles.item} ${active ? styles.active : ''}`
+              const content = (
+                <>
+                  <span className={styles.icon} aria-hidden="true"><Icon size={16} /></span>
+                  <span className={styles.label}>{label}</span>
+                </>
+              )
               return (
                 <li key={id}>
-                  <span className={`${styles.item} ${active ? styles.active : ''}`}
-                    aria-current={active ? 'page' : undefined} title={label}>
-                    <span className={styles.icon} aria-hidden="true"><Icon size={16} /></span>
-                    <span className={styles.label}>{label}</span>
-                  </span>
+                  {onNavigate && IMPLEMENTED.has(id)
+                    ? (
+                      <button type="button" className={`${className} ${styles.link}`}
+                        aria-current={active ? 'page' : undefined} title={label}
+                        onClick={() => onNavigate(id)}>
+                        {content}
+                      </button>
+                    )
+                    : (
+                      <span className={className} aria-current={active ? 'page' : undefined}
+                        title={label}>
+                        {content}
+                      </span>
+                    )}
                 </li>
               )
             })}

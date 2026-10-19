@@ -1,12 +1,13 @@
 import { describe, expect, it } from 'vitest'
-import { NAVIGATION } from './navigation'
+import { IMPLEMENTED, NAVIGATION, navigationFor } from './navigation'
 
 describe('NAVIGATION', () => {
   const items = NAVIGATION.flatMap(s => s.items)
 
   it('holds only the agreed high-priority destinations, in order', () => {
     expect(items.map(i => i.label)).toEqual([
-      'Home', 'Ask AI', 'Datasets', 'Upload', 'Connections', 'Dashboards', 'Insights', 'Settings',
+      'Home', 'Ask AI', 'Datasets', 'Upload', 'Connections', 'Dashboards', 'Insights', 'Users',
+      'Settings',
     ])
   })
 
@@ -19,7 +20,18 @@ describe('NAVIGATION', () => {
     for (const i of items) expect(i.icon).toBeTruthy()
   })
 
-  it('carries no routes yet (milestone 1 is visual only)', () => {
-    for (const i of items) expect(i).not.toHaveProperty('to')
+  it('marks only Users as admin-only', () => {
+    expect(items.filter(i => i.adminOnly).map(i => i.id)).toEqual(['users'])
+  })
+
+  it('removes admin-only items for normal users only', () => {
+    const ids = (isAdmin: boolean) => navigationFor(isAdmin).flatMap(s => s.items).map(i => i.id)
+    expect(ids(true)).toContain('users')
+    expect(ids(false)).not.toContain('users')
+    expect(ids(false)).toHaveLength(items.length - 1)
+  })
+
+  it('has pages only for Home and Users so far', () => {
+    expect([...IMPLEMENTED].sort()).toEqual(['home', 'users'])
   })
 })

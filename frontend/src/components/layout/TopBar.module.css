@@ -55,16 +55,27 @@
   display: inline-flex; align-items: center; justify-content: center;
   background: var(--accent); color: var(--mc-accent-fg);
 }
-.accountName { font-size: 12.5px; font-weight: 600; }
-.chev { color: var(--muted); }
+.accountName {
+  font-size: 12.5px; font-weight: 600;
+  max-inline-size: 22ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.badge {
+  flex-shrink: 0;
+  padding: 0 6px; border-radius: var(--radius-pill);
+  background: var(--accent-soft); color: var(--mc-accent-ink);
+  font-size: 10.5px; font-weight: 650; line-height: 16px;
+}
+.iconBtn:not(:disabled) { cursor: pointer; }
+.iconBtn:not(:disabled):hover { background: var(--surface2); color: var(--text); }
+.iconBtn:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 
-.search:disabled, .iconBtn:disabled, .account:disabled { cursor: not-allowed; }
+.search:disabled, .iconBtn:disabled { cursor: not-allowed; }
 
 .mobileOnly { display: none; align-items: center; gap: var(--dl-2); }
 
 @media (max-width: 899px) {
   .search { min-inline-size: 0; padding: 6px 8px; }
-  .searchText, .kbd, .accountName { display: none; }
+  .searchText, .kbd, .accountName, .badge { display: none; }
 }
 
 @media (max-width: 599px) {

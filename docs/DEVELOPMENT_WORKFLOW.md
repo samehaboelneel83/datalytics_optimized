@@ -36,3 +36,12 @@ dependency set failed with an internal npm error (`Cannot read properties of nul
 (reading 'edgesOut')`) when the lockfile was being created. `npm ci` from the existing
 lockfile does not hit that path. If you need to change dependencies, use npm 11
 (`npx npm@11 install …`).
+
+## Backend dependencies
+Exact versions in `backend/requirements.txt` (runtime) and `requirements-dev.txt` (tests,
+lint). Add a package by pinning its exact version there, then
+`pip install -r requirements-dev.txt` and run `ruff check . && pytest`.
+
+## Database changes
+Every schema change is an Alembic migration in `backend/alembic/versions/`, written or
+reviewed by hand, plus a test. `test_migrations.py` checks the migration matches the model.

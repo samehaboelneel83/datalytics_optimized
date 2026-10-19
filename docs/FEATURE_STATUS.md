@@ -3,16 +3,19 @@
 _Last updated: 2026-10-19_
 
 ## Summary
-Milestone 1 (static UI foundation) is implemented on branch
-`feature/static-ui-foundation`, pushed by the owner to `origin/emad`, and **waiting for
-owner review**. Not merged into `main`. Since the first push it also gained a
-preview-mode login ([ADR 0005](decisions/0005-login-preview-mode.md)) and Docker
-([ADR 0004](decisions/0004-docker-nginx-static-serving.md)); those are not committed yet.
+- **Feature 01, static UI foundation:** pushed by the owner to `origin/emad` (commit
+  `0b760c1`), awaiting review. Not merged into `main`.
+- **Feature 02, authentication and users:** built and verified in the working folder,
+  **not committed or pushed yet**. Login against PostgreSQL, Home after sign-in, admin
+  Users page, per-user data rule, Docker Compose with postgres + backend + frontend on
+  port 3002.
 
 | Feature | Branch | Status | Notes |
 |---|---|---|---|
-| Static UI foundation | `feature/static-ui-foundation` | Implemented, checks pass, awaiting review | [feature note](features/01-static-ui-foundation.md) |
+| 01 Static UI foundation | `emad` | Pushed, awaiting review | [note](features/01-static-ui-foundation.md) |
+| 02 Authentication and users | not committed | Built, checks pass, awaiting review | [note](features/02-authentication-and-users.md) |
 
 ## Next recommended feature
-**Navigation:** add `react-router`, make the sidebar items real links, add the mobile
-drawer and simple placeholder pages for each sidebar destination. Still no backend.
+**Navigation:** `react-router`, real URLs for Home and Users, mobile drawer, placeholder
+pages. Then the first owned data: **file upload / connections**, which will be the first
+real tables to use the ownership rule.

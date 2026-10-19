@@ -2,12 +2,14 @@ import { fireEvent, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { axeViolations } from '../../test/axe'
+import type { SignIn } from './LoginForm'
 import LoginPage from './LoginPage'
 import { LOGIN_MESSAGES } from './loginValidation'
 
-function setup() {
-  const onContinue = vi.fn()
-  const view = render(<LoginPage onContinue={onContinue} />)
+function setup(answer: string | null = null) {
+  // `onContinue` is the sign-in callback: resolves to null (accepted) or a message.
+  const onContinue = vi.fn<SignIn>(async () => answer)
+  const view = render(<LoginPage onSignIn={onContinue} />)
   const user = userEvent.setup()
   return { onContinue, user, ...view }
 }
@@ -25,11 +27,6 @@ describe('Login page: content', () => {
     expect(email()).toHaveAttribute('type', 'email')
     expect(password()).toHaveAttribute('type', 'password')
     expect(signIn()).toBeEnabled()
-  })
-
-  it('says no account is checked', () => {
-    setup()
-    expect(screen.getByRole('note')).toHaveTextContent('no account is checked')
   })
 
   it('announces the brand illustration once (the phone copy is decorative)', () => {
@@ -117,38 +114,57 @@ describe('Login page: password field', () => {
   })
 })
 
-describe('Login page: preview-mode hand-off', () => {
-  it('continues with the trimmed email when both fields are filled in', async () => {
+describe('Login page: sign-in', () => {
+  it('sends the trimmed email and the password when both are filled in', async () => {
     const { user, onContinue } = setup()
     await user.type(email(), '  name@company.com  ')
-    await user.type(password(), 'anything')
+    await user.type(password(), 'my password ')
     await user.click(signIn())
     expect(onContinue).toHaveBeenCalledTimes(1)
-    expect(onContinue).toHaveBeenCalledWith('name@company.com')
+    // The password is sent exactly as typed: spaces can be part of it.
+    expect(onContinue).toHaveBeenCalledWith('name@company.com', 'my password ')
   })
 
-  it('also continues when Enter is pressed in the password field', async () => {
+  it('also signs in when Enter is pressed in the password field', async () => {
     const { user, onContinue } = setup()
     await user.type(email(), 'name@company.com')
     await user.type(password(), 'anything{Enter}')
     expect(onContinue).toHaveBeenCalledTimes(1)
   })
 
-  it('sends nothing over the network and stores nothing', async () => {
-    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('{}'))
-    const xhrOpen = vi.spyOn(XMLHttpRequest.prototype, 'open')
-    const beacon = vi.fn()
-    Object.defineProperty(navigator, 'sendBeacon', { value: beacon, configurable: true })
-    localStorage.clear(); sessionStorage.clear()
+  it('shows the server\'s answer, clears the password and focuses it when refused', async () => {
+    const { user } = setup('Invalid email or password.')
+    await user.type(email(), 'name@company.com')
+    await user.type(password(), 'wrong')
+    await user.click(signIn())
+    expect(await screen.findByRole('alert')).toHaveTextContent('Invalid email or password.')
+    expect(password()).toHaveValue('')
+    expect(password()).toHaveFocus()
+    expect(signIn()).toBeEnabled()
+  })
 
+  it('shows "Signing in…" and ignores more clicks while waiting', async () => {
+    let finish: (v: string | null) => void = () => {}
+    const onSignIn = vi.fn(() => new Promise<string | null>(r => { finish = r }))
+    render(<LoginPage onSignIn={onSignIn} />)
+    const user = userEvent.setup()
+    await user.type(email(), 'name@company.com')
+    await user.type(password(), 'secret')
+    await user.click(signIn())
+    const busy = screen.getByRole('button', { name: 'Signing in…' })
+    expect(busy).toBeDisabled()
+    fireEvent.submit(busy.closest('form')!)
+    expect(onSignIn).toHaveBeenCalledTimes(1)
+    finish('Invalid email or password.')
+    expect(await screen.findByRole('alert')).toBeInTheDocument()
+  })
+
+  it('stores nothing in the browser (no localStorage, sessionStorage or readable cookie)', async () => {
+    localStorage.clear(); sessionStorage.clear()
     const { user } = setup()
     await user.type(email(), 'name@company.com')
     await user.type(password(), 'super-secret-password')
     await user.click(signIn())
-
-    expect(fetchSpy).not.toHaveBeenCalled()
-    expect(xhrOpen).not.toHaveBeenCalled()
-    expect(beacon).not.toHaveBeenCalled()
     expect(localStorage.length).toBe(0)
     expect(sessionStorage.length).toBe(0)
     expect(document.cookie).toBe('')
@@ -173,6 +189,15 @@ describe('Login page: accessibility', () => {
   it('has no violations while showing validation errors', async () => {
     const { container, user } = setup()
     await user.click(signIn())
+    expect(await axeViolations(container)).toEqual([])
+  })
+
+  it('has no violations while showing the server\'s answer', async () => {
+    const { container, user } = setup('Invalid email or password.')
+    await user.type(email(), 'name@company.com')
+    await user.type(password(), 'wrong')
+    await user.click(signIn())
+    await screen.findByRole('alert')
     expect(await axeViolations(container)).toEqual([])
   })
 })

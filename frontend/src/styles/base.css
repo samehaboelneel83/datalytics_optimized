@@ -88,6 +88,7 @@ svg.lucide { stroke-width: 2; flex-shrink: 0; }
    so the page shows the real design rather than a greyed-out one;
    the "UI preview" notice on each page says why nothing responds. */
 .btn:disabled { cursor: not-allowed; }
+.btn:not(:disabled) { cursor: pointer; }
 
 /* ---- Form fields (filled style, as in the reference) ---- */
 input {
