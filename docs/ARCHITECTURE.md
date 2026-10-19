@@ -18,7 +18,10 @@ Why this stack: [ADR 0001](decisions/0001-frontend-stack.md).
 
 ### Folder structure
 ```
+docker-compose.yml           runs the frontend container (backend/db added later)
+.env.example                 optional settings (FRONTEND_PORT)
 frontend/
+  Dockerfile  nginx.conf     two-stage build, nginx serving (ADR 0004)
   index.html                 page entry: Home
   login.html                 page entry: Login
   src/
@@ -35,7 +38,7 @@ frontend/
       ui/                    PreviewNote
     pages/                   one folder per page; page-only parts live inside it
       home/                  HomePage, Hero, StatTiles, GetStarted, ContinueSection
-      login/                 LoginPage, BrandIllustration
+      login/                 LoginPage, LoginForm, loginValidation, BrandIllustration
     test/                    test setup and shared test helpers
     assets/fonts/            Inter woff2 + licence
 ```
@@ -68,6 +71,10 @@ frontend/
 
 Not planned: Tailwind or a UI kit (MUI, shadcn…). They would replace the MCAIT tokens and
 change the Datalytics look ([ADR 0002](decisions/0002-css-modules-on-design-tokens.md)).
+
+### Running it
+`npm run dev` for development (hot reload); `docker compose up --build` for the built
+app behind nginx ([ADR 0004](decisions/0004-docker-nginx-static-serving.md)).
 
 ### Responsive behaviour
 | Width | Sidebar | Top bar |

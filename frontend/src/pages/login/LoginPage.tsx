@@ -1,21 +1,21 @@
-import { ArrowRight, Eye, Moon } from 'lucide-react'
+import { Moon } from 'lucide-react'
 import BrandMark from '../../components/brand/BrandMark'
-import PreviewNote from '../../components/ui/PreviewNote'
 import BrandIllustration from './BrandIllustration'
+import LoginForm from './LoginForm'
 import styles from './LoginPage.module.css'
 
 /**
- * Sign-in page, milestone 1 (reference: pages/Login.tsx + pages/login.css).
+ * Sign-in page (reference: pages/Login.tsx + pages/login.css).
  *
  * Same layout as the reference: the form card on the reading-start side and
  * the brand panel on the other; one column below 900px.
  *
- * Static by design. There is deliberately no <form> element, so the page can
- * never submit or reload, and every field and button is disabled. No
- * validation, no auth call, no SSO hand-off: those belong to the
- * authentication feature.
+ * Preview mode (no backend): the form validates input in the browser and then
+ * calls `onContinue`. Nothing is sent or stored, and no account is checked.
+ * The page itself only lays things out; the authentication feature replaces
+ * what `onContinue` does.
  */
-export default function LoginPage() {
+export default function LoginPage({ onContinue }: { onContinue: (email: string) => void }) {
   return (
     <div className={styles.page}>
       <main className={styles.main}>
@@ -33,40 +33,8 @@ export default function LoginPage() {
         </div>
 
         <div className={styles.center}>
-          <section className={styles.card} aria-labelledby="login-title">
-            <PreviewNote>UI preview — sign-in is not connected yet</PreviewNote>
-            <h1 id="login-title" className={styles.title}>Welcome back</h1>
-            <p className={styles.sub}>Explore your data, build dashboards and ask questions in plain language.</p>
-
-            <div className={styles.field}>
-              <label htmlFor="login-email" className={styles.label}>Email</label>
-              <input id="login-email" type="email" className={styles.input} disabled
-                placeholder="name@company.com" autoComplete="username" />
-            </div>
-
-            <div className={styles.field}>
-              <label htmlFor="login-password" className={styles.label}>Password</label>
-              <div className={styles.pw}>
-                <input id="login-password" type="password" className={styles.input} disabled
-                  placeholder="Enter your password" autoComplete="current-password" />
-                <button type="button" className={styles.reveal} disabled
-                  aria-label="Show password (not available yet)" title="Not available yet">
-                  <Eye size={17} aria-hidden="true" />
-                </button>
-              </div>
-            </div>
-
-            <button type="button" className={`btn btn-primary ${styles.submit}`} disabled title="Not available yet">
-              Sign In <ArrowRight size={16} aria-hidden="true" />
-            </button>
-
-            <div className={styles.or} role="separator"><span>OR</span></div>
-
-            <button type="button" className={`btn ${styles.sso}`} disabled title="Not available yet">
-              Sign in with SSO
-            </button>
-
-            <p className={styles.help}>Need an account or a new password? Ask your workspace admin.</p>
+          <section className={styles.card} aria-label="Sign in">
+            <LoginForm onContinue={onContinue} />
           </section>
         </div>
       </main>

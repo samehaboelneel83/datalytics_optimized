@@ -1,0 +1,28 @@
+# Runs the Datalytics frontend (static pages served by nginx).
+#
+#   docker compose up --build        # build and start (foreground)
+#   docker compose up --build -d     # ...in the background
+#   docker compose down              # stop and remove
+#
+# Then open:  http://localhost:8080/            (Home)
+#             http://localhost:8080/login.html  (Login)
+#
+# Change the port without editing this file:  FRONTEND_PORT=9000 docker compose up --build
+# (or copy .env.example to .env). A backend and database service will be added
+# here when those features are built.
+services:
+  frontend:
+    build:
+      context: ./frontend
+    image: datalytics-optimized-frontend:dev
+    ports:
+      - "${FRONTEND_PORT:-8080}:8080"
+    restart: unless-stopped
+    # Hardening: nothing here needs to write to its own disk or gain privileges.
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
